@@ -159,12 +159,16 @@ class TicketSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    tickets = TicketSerializer(many=True, write_only=True)
+    tickets = TicketSerializer(
+        many=True,
+        write_only=True,
+        source="order_tickets",
+    )
 
     class Meta:
         model = Order
         fields = ("id", "created_at", "tickets")
-        read_only_fields = ("id", "created_at")
+        read_only_fields = ("id", "created_at", "tickets")
 
     def create(self, validated_data):
         # evita TypeError quando a view chama serializer.save(user=...)
