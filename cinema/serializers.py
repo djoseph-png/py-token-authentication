@@ -155,6 +155,7 @@ class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = ("id", "movie_session", "row", "seat")
+        read_only_fields = ("id",)
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -165,23 +166,28 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = ("id", "created_at", "tickets")
         read_only_fields = ("id", "created_at")
 
-    @transaction.atomic
     def create(self, validated_data):
+        # evita TypeError quando a view chama serializer.save(user=...)
+        user = validated_data.pop("user", None)
+        if user is None:
+            req = (
+                self.context.get("request")
+                if hasattr(self, "context")
+                else None
+            )
+            user = getattr(req, "user", None)
+
+        if user is None or not getattr(user, "is_authenticated", False):
+            raise serializers.ValidationError("User must be authenticated.")
+
         tickets_data = validated_data.pop("tickets", [])
-        user = self.context["request"].user
-        order = Order.objects.create(user=user, **validated_data)
-        # criar tickets relacionados
-        Ticket.objects.bulk_create(
-            [
-                Ticket(
-                    order=order,
-                    movie_session=item["movie_session"],
-                    row=item["row"],
-                    seat=item["seat"],
-                )
-                for item in tickets_data
-            ]
-        )
+
+        with transaction.atomic():
+            order = Order.objects.create(user=user, **validated_data)
+            for item in tickets_data:
+                ticket = Ticket(order=order, **item)
+                ticket.full_clean()
+                ticket.save()
         return order
 
 

@@ -28,8 +28,6 @@ SECRET_KEY = (
 DEBUG = True
 
 INSTALLED_APPS = [
-    "user",
-    "cinema",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -38,6 +36,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework.authtoken",
+    "user",
+    "cinema",
 ]
 
 MIDDLEWARE = [
@@ -59,10 +59,6 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.AllowAny",
     ],
 }
-
-if DEBUG:
-    # inserir cedo na pilha
-    MIDDLEWARE.insert(1, "debug_toolbar.middleware.DebugToolbarMiddleware")
 
 ROOT_URLCONF = "cinema_service.urls"
 
