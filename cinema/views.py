@@ -136,10 +136,8 @@ class OrderViewSet(
         return [permission() for permission in self.permission_classes]
 
     def get_queryset(self):
-        user = self.request.user
-        if getattr(user, "is_staff", False):
-            return self.queryset
-        return self.queryset.filter(user=user)
+        # Mesmo admin vê apenas os próprios pedidos — conforme expectativa
+        return self.queryset.filter(user=self.request.user)
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve"):

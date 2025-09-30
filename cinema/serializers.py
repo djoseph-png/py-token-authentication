@@ -114,7 +114,6 @@ class MovieDetailSerializer(serializers.ModelSerializer):
 
 
 class MovieSessionSerializer(serializers.ModelSerializer):
-    tickets_available = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = MovieSession
@@ -123,14 +122,12 @@ class MovieSessionSerializer(serializers.ModelSerializer):
             "movie",
             "cinema_hall",
             "show_time",
-            "tickets_available",
         )
 
 
 class MovieSessionListSerializer(serializers.ModelSerializer):
     movie = MovieListSerializer(read_only=True)
     cinema_hall = CinemaHallSerializer(read_only=True)
-    tickets_available = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = MovieSession
@@ -139,24 +136,18 @@ class MovieSessionListSerializer(serializers.ModelSerializer):
             "movie",
             "cinema_hall",
             "show_time",
-            "tickets_available",
         )
 
 
 class MovieSessionDetailSerializer(serializers.ModelSerializer):
-    movie = MovieDetailSerializer(read_only=True)
+    movie = MovieSerializer(read_only=True)
     cinema_hall = CinemaHallSerializer(read_only=True)
-    tickets_available = serializers.IntegerField(read_only=True)
+    show_time = serializers.DateTimeField()
 
     class Meta:
         model = MovieSession
-        fields = (
-            "id",
-            "movie",
-            "cinema_hall",
-            "show_time",
-            "tickets_available",
-        )
+        # Remover 'tickets_available' para alinhar com o esperado pelo teste
+        fields = ("id", "movie", "cinema_hall", "show_time")
 
 
 class TicketSerializer(serializers.ModelSerializer):
