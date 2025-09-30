@@ -70,10 +70,6 @@ class Order(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
-    tickets = models.ManyToManyField(
-        "Ticket",
-        related_name="orders",
-    )
 
     class Meta:
         ordering = ["-created_at"]
@@ -108,8 +104,8 @@ class Ticket(models.Model):
                 raise error_to_raise(
                     {
                         attr_name: (
-                            f"{attr_name} number must be in available range: "
-                            f"(1, {hall_attr}): (1, {limit})"
+                            "number must be in available range: "
+                            f"(1, {hall_attr}) = (1, {limit})"
                         )
                     }
                 )

@@ -114,7 +114,6 @@ class MovieDetailSerializer(serializers.ModelSerializer):
 
 
 class MovieSessionSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = MovieSession
         fields = (
@@ -146,7 +145,6 @@ class MovieSessionDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MovieSession
-        # Remover 'tickets_available' para alinhar com o esperado pelo teste
         fields = ("id", "movie", "cinema_hall", "show_time")
 
 
@@ -158,26 +156,19 @@ class TicketSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    tickets = TicketSerializer(
-        many=True,
-        write_only=True,
-        source="order_tickets",
-    )
+    # entrada: payload usa a chave "tickets"
+    tickets = TicketSerializer(many=True, write_only=True)
 
     class Meta:
         model = Order
         fields = ("id", "created_at", "tickets")
-        read_only_fields = ("id", "created_at", "tickets")
+        read_only_fields = ("id", "created_at")
 
     def create(self, validated_data):
         # evita TypeError quando a view chama serializer.save(user=...)
         user = validated_data.pop("user", None)
         if user is None:
-            req = (
-                self.context.get("request")
-                if hasattr(self, "context")
-                else None
-            )
+            req = getattr(self, "context", {}).get("request")
             user = getattr(req, "user", None)
 
         if user is None or not getattr(user, "is_authenticated", False):
@@ -203,7 +194,12 @@ class TicketListSerializer(serializers.ModelSerializer):
 
 
 class OrderListSerializer(serializers.ModelSerializer):
-    tickets = TicketListSerializer(many=True, read_only=True)
+    # saída: mapear 'tickets' para reverse accessor 'order_tickets'
+    tickets = TicketListSerializer(
+        many=True,
+        read_only=True,
+        source="order_tickets",
+    )
 
     class Meta:
         model = Order
