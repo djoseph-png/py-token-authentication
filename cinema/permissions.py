@@ -12,7 +12,10 @@ class IsAdminOrIfAuthenticatedReadOnly(BasePermission):
         user = request.user
         if getattr(user, "is_staff", False):
             return True
-        if request.method in SAFE_METHODS and getattr(user, "is_authenticated", False):
+        if (
+            request.method in SAFE_METHODS
+            and getattr(user, "is_authenticated", False)
+        ):
             return True
         return False
 
