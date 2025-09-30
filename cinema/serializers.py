@@ -114,9 +114,17 @@ class MovieDetailSerializer(serializers.ModelSerializer):
 
 
 class MovieSessionSerializer(serializers.ModelSerializer):
+    tickets_available = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = MovieSession
-        fields = ("id", "movie", "cinema_hall", "show_time")
+        fields = (
+            "id",
+            "movie",
+            "cinema_hall",
+            "show_time",
+            "tickets_available",
+        )
 
 
 class MovieSessionListSerializer(serializers.ModelSerializer):
